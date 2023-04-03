@@ -112,8 +112,6 @@
                                     </imageView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="rXT-Ra-Fl7" firstAttribute="centerX" secondItem="e6M-5x-QVx" secondAttribute="centerX" id="5u5-JN-ThO"/>
-                                    <constraint firstItem="rXT-Ra-Fl7" firstAttribute="centerY" secondItem="e6M-5x-QVx" secondAttribute="centerY" id="BXs-5s-TXa"/>
                                     <constraint firstItem="rXT-Ra-Fl7" firstAttribute="height" secondItem="I9H-Vf-Qom" secondAttribute="height" id="Dyc-Ok-r7J"/>
                                     <constraint firstAttribute="bottom" secondItem="rXT-Ra-Fl7" secondAttribute="bottom" id="J3E-dq-Kd0"/>
                                     <constraint firstAttribute="trailing" secondItem="rXT-Ra-Fl7" secondAttribute="trailing" id="QMq-CP-Rao"/>
