@@ -9,11 +9,13 @@ import UIKit
 
 final class ImagesListCell: UITableViewCell {
 
+    // Static
     static let reuseIdentifier = "ImagesListCell"
     
-    @IBOutlet weak var contentImageView: UIImageView!
-    @IBOutlet weak var dateLabel: UILabel!
-    @IBOutlet weak var likeButton: UIButton!
+    // UI
+    @IBOutlet private weak var contentImageView: UIImageView!
+    @IBOutlet private weak var dateLabel: UILabel!
+    @IBOutlet private weak var likeButton: UIButton!
         
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -21,6 +23,8 @@ final class ImagesListCell: UITableViewCell {
         formatter.timeStyle = .none
         return formatter
     }()
+    
+    // MARK: - Public
     
     func configure(with indexPath: IndexPath, photoName: String) {
         guard let imagePhotosName = UIImage(named: photoName) else { return }
