@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController {
+final class ProfileViewController: UIViewController {
     
     // UI
     private lazy var profileImageView: UIImageView = {
@@ -38,7 +38,7 @@ class ProfileViewController: UIViewController {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
         label.text = "ekaterina_nov"
-        label.textColor = UIColor(red: 174/255, green: 175/255, blue: 180/255, alpha: 1)
+        label.textColor = .ypGray
         label.font = UIFont.systemFont(ofSize: 13)
         return label
     }()
@@ -63,11 +63,9 @@ class ProfileViewController: UIViewController {
     // MARK: - Private
     
     private func setUpUI() {
-        view.addSubview(profileImageView)
-        view.addSubview(logoutButton)
-        view.addSubview(nameLabel)
-        view.addSubview(nicknameLabel)
-        view.addSubview(infoLabel)
+        view.backgroundColor = .ypDarkGray
+        
+        [profileImageView, logoutButton, nameLabel, nicknameLabel, infoLabel].forEach { view.addSubview($0) }
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
@@ -75,7 +73,7 @@ class ProfileViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            logoutButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 56),
+            logoutButton.centerYAnchor.constraint(equalTo: profileImageView.centerYAnchor),
             logoutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -26),
             logoutButton.widthAnchor.constraint(equalToConstant: 20),
             logoutButton.heightAnchor.constraint(equalToConstant: 22)

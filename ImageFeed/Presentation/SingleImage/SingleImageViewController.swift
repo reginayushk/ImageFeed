@@ -7,7 +7,7 @@
 
 import UIKit
 
-class SingleImageViewController: UIViewController {
+final class SingleImageViewController: UIViewController {
     
     // MARK: - Public
     
@@ -20,13 +20,15 @@ class SingleImageViewController: UIViewController {
     }
     
     // UI
-    @IBOutlet weak var imageView: UIImageView!
-    @IBOutlet weak var scrollView: UIScrollView!
+    @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var scrollView: UIScrollView!
+    @IBOutlet private weak var backButton: UIButton!
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        backButton.tintColor = .white
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
         imageView.image = image
@@ -39,7 +41,7 @@ class SingleImageViewController: UIViewController {
         dismiss(animated: true)
     }
     
-    @IBAction func didTapShareButton() {
+    @IBAction private func didTapShareButton() {
         let share = UIActivityViewController(
             activityItems: [image as Any],
             applicationActivities: nil
