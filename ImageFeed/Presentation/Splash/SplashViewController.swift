@@ -61,8 +61,7 @@ final class SplashViewController: UIViewController {
         if let _ = OAuth2TokenStorage().token {
             switchToTabBarController()
         } else {
-            let navigation = mainStoryboard.instantiateViewController(withIdentifier: "AuthNavigationController") as? UINavigationController
-            let auth = navigation?.viewControllers.first as? AuthViewController
+            let auth = mainStoryboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
             auth?.delegate = self
 
             window.rootViewController = auth
