@@ -40,10 +40,18 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+        dismiss(animated: true)
         delegate?.authViewController(self, didAuthenticateWithCode: code)
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         dismiss(animated: true)
+    }
+    
+    func webViewViewControllerDidFail(_ vc: WebViewViewController) {
+        dismiss(animated: true)
+        UIBlockingProgressHUD.dismiss()
+        let alert = AlertFactory.shared.makeNetworkErrorAlert()
+        present(alert, animated: true)
     }
 }

@@ -11,6 +11,7 @@ import WebKit
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
+    func webViewViewControllerDidFail(_ vc: WebViewViewController)
 }
 
 final class WebViewViewController: UIViewController {
@@ -22,10 +23,22 @@ final class WebViewViewController: UIViewController {
     // Public Properties
     weak var delegate: WebViewViewControllerDelegate?
     
+    // MARK: - Private Properties
+    
+    private var estimatedProgressObservation: NSKeyValueObservation?
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        estimatedProgressObservation = webView.observe(
+            \.estimatedProgress,
+            options: [],
+            changeHandler: { [weak self] _, _ in
+                guard let self else { return }
+                self.updateProgress()
+            })
         
         webView.navigationDelegate = self
         
@@ -40,42 +53,6 @@ final class WebViewViewController: UIViewController {
         
         let request = URLRequest(url: url)
         webView.load(request)
-        
-        updateProgress()
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        webView.addObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress),
-            options: .new,
-            context: nil
-        )
-        updateProgress()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        webView.removeObserver(
-            self,
-            forKeyPath: #keyPath(WKWebView.estimatedProgress)
-        )
-    }
-    
-    // MARK: - Observable
-    
-    override func observeValue(
-        forKeyPath keyPath: String?,
-        of object: Any?,
-        change: [NSKeyValueChangeKey : Any]?,
-        context: UnsafeMutableRawPointer?
-    ) {
-        if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
-        } else {
-            super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-        }
     }
     
     // MARK: - Private
@@ -105,6 +82,13 @@ extension WebViewViewController: WKNavigationDelegate {
             decisionHandler(.cancel)
         } else {
             decisionHandler(.allow)
+        }
+    }
+    
+    func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        let code = (error as NSError).code
+        if code == -1017 || code == -1009 {
+            delegate?.webViewViewControllerDidFail(self)
         }
     }
     

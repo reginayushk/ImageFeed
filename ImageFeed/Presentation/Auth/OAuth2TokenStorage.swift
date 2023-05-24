@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
 final class OAuth2TokenStorage {
     
@@ -13,10 +14,19 @@ final class OAuth2TokenStorage {
     
     var token: String? {
         get {
-            return UserDefaults.standard.string(forKey: "unsplashToken")
-        }
-        set {
-            UserDefaults.standard.set(newValue, forKey: "unsplashToken")
+            return KeychainWrapper.standard.string(forKey: "Auth token")
+        } set {
+            guard let newValue else { return }
+            KeychainWrapper.standard.set(newValue, forKey: "Auth token")
         }
     }
+    
+//    var token: String? {
+//        get {
+//            return UserDefaults.standard.string(forKey: "unsplashToken")
+//        }
+//        set {
+//            UserDefaults.standard.set(newValue, forKey: "unsplashToken")
+//        }
+//    }
 }
