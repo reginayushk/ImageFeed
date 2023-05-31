@@ -12,7 +12,7 @@ final class ProfileImageService: ProfileImageServiceProtocol {
     // MARK: - Private Properties
     
     private let urlSession = URLSession.shared
-    private let imageCache = NSCache<NSString, UIImage>()
+//    private let imageCache = NSCache<NSString, UIImage>()
     private var task: URLSessionTask?
     private(set) var avatarURL: String?
     

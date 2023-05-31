@@ -16,7 +16,7 @@ struct Profile {
     static func from(_ profileResult: ProfileResult) -> Profile {
         Profile(
             username: profileResult.username,
-            name: "\(profileResult.firstName) \(profileResult.lastName)",
+            name: "\(profileResult.firstName) \(profileResult.lastName ?? "")",
             loginName: "@\(profileResult.username)",
             bio: profileResult.bio
         )

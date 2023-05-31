@@ -153,6 +153,9 @@
                                                     <rect key="frame" x="335" y="4" width="42" height="42"/>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" image="likeButtonOn"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked" destination="wKc-Tl-QqJ" eventType="touchUpInside" id="aNP-bd-3Da"/>
+                                                    </connections>
                                                 </button>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -213,7 +216,7 @@
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1I0-pD-OuO">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="414" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="rXT-Ra-Fl7">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="414" placeholderIntrinsicHeight="414" translatesAutoresizingMaskIntoConstraints="NO" id="rXT-Ra-Fl7">
                                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                     </imageView>
                                 </subviews>

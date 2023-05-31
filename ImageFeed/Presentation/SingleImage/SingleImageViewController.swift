@@ -6,35 +6,55 @@
 //
 
 import UIKit
+import Kingfisher
 
 final class SingleImageViewController: UIViewController {
     
     // MARK: - Public
     
-    var image: UIImage! {
-        didSet {
-            guard isViewLoaded else { return }
-            imageView.image = image
-            rescaleAndCenterImageInScrollView(image: image)
-        }
-    }
+    var photo: Photo?
     
     // UI
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var scrollView: UIScrollView!
     @IBOutlet private weak var backButton: UIButton!
     
+    // Dependencies
+    private let singleImageService: SingleImageServiceProtocol
+    
+    // MARK: - Private Properties
+    
+    private var singleImageServiceObserver: NSObjectProtocol?
+    private var fullImageURL: String?
+    private var image: UIImage?
+    
+    // MARK: - Initialize
+    
+    init(singleImageService: SingleImageServiceProtocol = SingleImageService.shared) {
+        self.singleImageService = singleImageService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.singleImageService = SingleImageService.shared
+        super.init(coder: coder)
+    }
+    
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        scrollView.delegate = self
         backButton.tintColor = .white
-        scrollView.minimumZoomScale = 0.1
-        scrollView.maximumZoomScale = 1.25
-        imageView.image = image
-        rescaleAndCenterImageInScrollView(image: image)
+        scrollView.minimumZoomScale = 0.95
+        scrollView.maximumZoomScale = 3
+        updateFullImage(id: photo?.id ?? "")
     }
     
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        centerImage()
+    }
     // MARK: - Actions
     
     @IBAction private func didTapBackButton() {
@@ -51,28 +71,111 @@ final class SingleImageViewController: UIViewController {
     
     // MARK: - Private
     
-    private func rescaleAndCenterImageInScrollView(image: UIImage) {
-        let minZoomScale = scrollView.minimumZoomScale
-        let maxZoomScale = scrollView.maximumZoomScale
-        view.layoutIfNeeded()
-        let visibleRectSize = scrollView.bounds.size
-        let imageSize = image.size
-        let hScale = visibleRectSize.width / imageSize.width
-        let vScale = visibleRectSize.height / imageSize.height
-        let scale = min(maxZoomScale, max(minZoomScale, max(hScale, vScale)))
-        scrollView.setZoomScale(scale, animated: false)
-        scrollView.layoutIfNeeded()
-        let newContentSize = scrollView.contentSize
-        let x = (newContentSize.width - visibleRectSize.width) / 2
-        let y = (newContentSize.height - visibleRectSize.height) / 2
-        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
+//    private func rescaleAndCenterImageInScrollView(image: UIImage) {
+//        let minZoomScale = scrollView.minimumZoomScale
+//        let maxZoomScale = scrollView.maximumZoomScale
+//        view.layoutIfNeeded()
+//        let visibleRectSize = scrollView.bounds.size
+//        let imageSize = image.size
+//        let hScale = visibleRectSize.width / imageSize.width
+//        let vScale = visibleRectSize.height / imageSize.height
+//        let scale = min(maxZoomScale, max(minZoomScale, max(hScale, vScale)))
+//        scrollView.setZoomScale(scale, animated: false)
+//        scrollView.layoutIfNeeded()
+//        let newContentSize = scrollView.contentSize
+//        let x = (newContentSize.width - visibleRectSize.width) / 2
+//        let y = (newContentSize.height - visibleRectSize.height) / 2
+//        scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
+//    }
+    
+    private func updateFullImage(id: String) {
+
+        UIBlockingProgressHUD.show()
+        singleImageService.fetchFullPhoto(id: id) { [weak self] result in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+            }
+            
+            switch result {
+            case .success(let stringURL):
+                self.fullImageURL = stringURL
+                self.loadImage(stringUrl: stringURL)
+            case .failure:
+                DispatchQueue.main.async { [weak self] in
+                    let alert = AlertFactory.shared.makeNetworkErrorAlert()
+                    self?.present(alert, animated: true)
+                }
+            }
+        }
+    }
+
+    private func loadImage(stringUrl: String) {
+        guard let url = URL(string: stringUrl) else { return }
+
+        imageView.kf.setImage(with: url) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let kfImage):
+                let image = kfImage.image
+                self.image = image
+            case .failure:
+                self.showError()
+            }
+        }
+    }
+    
+    private func showError() {
+        let alert = UIAlertController(
+            title: "Что-то пошло не так. Попробовать ещё раз?",
+            message: "",
+            preferredStyle: .alert
+        )
+        
+        let dismissAction = UIAlertAction(title: "Не надо", style: .cancel) { _ in
+            alert.dismiss(animated: true)
+        }
+        
+        let tryAgainAction = UIAlertAction(title: "Повторить", style: .destructive) { [weak self] _ in
+            guard let self, let fullImageURL = self.fullImageURL else { return }
+            self.loadImage(stringUrl: fullImageURL)
+        }
+        
+        alert.addAction(dismissAction)
+        alert.addAction(tryAgainAction)
+        present(alert, animated: true)
+    }
+    
+    private func centerImage() {
+        let boundsSize = scrollView.bounds.size
+        var frameToCenter = imageView.frame
+        
+        if frameToCenter.size.width < boundsSize.width {
+            frameToCenter.origin.x = (boundsSize.width - frameToCenter.size.width) / 2
+        } else {
+            frameToCenter.origin.x = 0
+        }
+        
+        if frameToCenter.size.height < boundsSize.height {
+            frameToCenter.origin.y = (boundsSize.height - frameToCenter.size.height) / 2
+        } else {
+            frameToCenter.origin.y = 0
+        }
+        
+        imageView.frame = frameToCenter
     }
 }
 
 // MARK: - UIScrollViewDelegate
 
 extension SingleImageViewController: UIScrollViewDelegate {
+    
     func viewForZooming(in scrollView: UIScrollView) -> UIView? {
-        imageView
+        return self.imageView
+    }
+    
+    func scrollViewDidZoom(_ scrollView: UIScrollView) {
+        self.centerImage()
     }
 }
