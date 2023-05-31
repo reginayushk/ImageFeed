@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import ProgressHUD
 
 final class SplashViewController: UIViewController {
     
@@ -17,10 +18,11 @@ final class SplashViewController: UIViewController {
         return imageView
     }()
     
-    // MARK: - Dependencies
-
+    // Dependencies
     private let window: UIWindow
     private let oauth2Service = OAuth2Service()
+    private let profileService = ProfileService.shared
+    private let profileImageService: ProfileImageServiceProtocol
     
     // Computed Properties
     private var mainStoryboard: UIStoryboard {
@@ -29,13 +31,14 @@ final class SplashViewController: UIViewController {
     
     // MARK: - Initialize
     
-    init(window: UIWindow) {
+    init(window: UIWindow, profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared) {
         self.window = window
+        self.profileImageService = profileImageService
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+        return nil
     }
     
     // MARK: - Lifecycle
@@ -58,8 +61,8 @@ final class SplashViewController: UIViewController {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        if let _ = OAuth2TokenStorage().token {
-            switchToTabBarController()
+        if let token = OAuth2TokenStorage().token {
+            fetchProfile(token: token)
         } else {
             let auth = mainStoryboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController
             auth?.delegate = self
@@ -91,6 +94,7 @@ extension SplashViewController: AuthViewControllerDelegate {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String) {
         dismiss(animated: true) { [weak self] in
             guard let self else { return }
+            UIBlockingProgressHUD.show()
             self.fetchOAuthToken(code)
         }
     }
@@ -98,13 +102,47 @@ extension SplashViewController: AuthViewControllerDelegate {
     private func fetchOAuthToken(_ code: String) {
         oauth2Service.fetchAuthToken(code) { [weak self] result in
             guard let self else { return }
+
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+            }
+
             switch result {
-            case .success:
-                self.switchToTabBarController()
+            case .success(let token):
+                self.fetchProfile(token: token)
             case .failure:
-                // TODO [Sprint 11]
-                break
+                DispatchQueue.main.async { [weak self] in
+                    let alert = AlertFactory.shared.makeNetworkErrorAlert()
+                    self?.present(alert, animated: true)
+                }
             }
         }
+    }
+    
+    private func fetchProfile(token: String) {
+        profileService.fetchProfile(token) { [weak self] result in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
+            }
+            
+            switch result {
+            case .success(let profile):
+                self.fetchProfileImage(username: profile.username)
+                DispatchQueue.main.async { [weak self] in
+                    self?.switchToTabBarController()
+                }
+            case .failure:
+                DispatchQueue.main.async { [weak self] in
+                    let alert = AlertFactory.shared.makeNetworkErrorAlert()
+                    self?.present(alert, animated: true)
+                }
+            }
+        }
+    }
+    
+    private func fetchProfileImage(username: String) {
+        profileImageService.fetchProfileImageURL(username: username) { _ in }
     }
 }

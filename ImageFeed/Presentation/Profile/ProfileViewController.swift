@@ -6,6 +6,12 @@
 //
 
 import UIKit
+import Kingfisher
+
+private extension CGFloat {
+    static let profileImageViewCornerRadius: CGFloat = 35
+    static let profileImageViewWidthAnchor: CGFloat = 70
+}
 
 final class ProfileViewController: UIViewController {
     
@@ -14,6 +20,8 @@ final class ProfileViewController: UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.image = UIImage(named: "user")
+        imageView.layer.cornerRadius = .profileImageViewCornerRadius
+        imageView.clipsToBounds = true
         return imageView
     }()
     
@@ -52,12 +60,43 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
+    // Dependencies
+    private let profileService = ProfileService.shared
+    private let profileImageService: ProfileImageServiceProtocol
+    
+    // MARK: - Private Properties
+    
+    private var profileImageServiceObserver: NSObjectProtocol?
+    
+    // MARK: - Initialize
+    
+    init(profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared) {
+        self.profileImageService = profileImageService
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.profileImageService = ProfileImageService.shared
+        super.init(coder: coder)
+    }
     
     // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setUpUI()
+        
+        profileImageServiceObserver = NotificationCenter.default
+            .addObserver(
+                forName: ProfileImageService.didChangeNotification,
+                object: nil,
+                queue: .main
+            ) { [weak self] _ in
+                guard let self else { return }
+                self.updateAvatar()
+            }
+        updateAvatar()
+        updateProfileDetails(profile: profileService.profile ?? Profile(username: "", name: "", loginName: "", bio: ""))
     }
     
     // MARK: - Private
@@ -69,7 +108,9 @@ final class ProfileViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             profileImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16)
+            profileImageView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            profileImageView.widthAnchor.constraint(equalToConstant: .profileImageViewWidthAnchor),
+            profileImageView.heightAnchor.constraint(equalToConstant: .profileImageViewWidthAnchor)
         ])
         
         NSLayoutConstraint.activate([
@@ -93,6 +134,33 @@ final class ProfileViewController: UIViewController {
             infoLabel.topAnchor.constraint(equalTo: nicknameLabel.bottomAnchor, constant: 8),
             infoLabel.leadingAnchor.constraint(equalTo: profileImageView.leadingAnchor)
         ])
+    }
+    
+    private func updateProfileDetails(profile: Profile) {
+        DispatchQueue.main.async { [weak self] in
+            guard
+                let self
+//                let avatarURL = self.profileImageService.avatarURL
+            else { return }
+            
+            self.nameLabel.text = self.profileService.profile?.name
+            self.nicknameLabel.text = self.profileService.profile?.loginName
+            self.infoLabel.text = self.profileService.profile?.bio
+            
+//            self.profileImageService.getImage(from: avatarURL) { [weak self] image in
+//                guard let self else { return }
+//                self.profileImageView.image = image
+//            }
+        }
+    }
+    
+    private func updateAvatar() {
+        guard
+            let profileImageURL = profileImageService.avatarURL,
+            let url = URL(string: profileImageURL)
+        else { return }
+
+        profileImageView.kf.setImage(with: url)
     }
     
     // MARK: - Actions

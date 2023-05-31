@@ -117,7 +117,7 @@
         <!--ImagesList-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController title="ImagesList" id="BYZ-38-t0r" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="ImagesListViewController" title="ImagesList" id="BYZ-38-t0r" customClass="ImagesListViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -286,26 +286,10 @@
             </objects>
             <point key="canvasLocation" x="811.45038167938924" y="-106.33802816901409"/>
         </scene>
-        <!--Profile View Controller-->
-        <scene sceneID="WZt-HU-dTC">
-            <objects>
-                <viewController id="8cR-gz-S0Q" customClass="ProfileViewController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
-                    <view key="view" contentMode="scaleToFill" id="rL6-o2-Obo">
-                        <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                        <viewLayoutGuide key="safeArea" id="AlI-Uq-Te3"/>
-                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                    </view>
-                    <tabBarItem key="tabBarItem" title="" image="tab_profile_active" id="rQD-CZ-YZb"/>
-                </viewController>
-                <placeholder placeholderIdentifier="IBFirstResponder" id="FAB-ag-q8P" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-            </objects>
-            <point key="canvasLocation" x="66.412213740458014" y="562.67605633802816"/>
-        </scene>
         <!--Tab Bar Controller-->
         <scene sceneID="UYA-Z2-CyJ">
             <objects>
-                <tabBarController storyboardIdentifier="AuthorizedTabBarController" id="Qbe-r8-4Vb" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="AuthorizedTabBarController" id="Qbe-r8-4Vb" customClass="TabBarController" customModule="ImageFeed" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="8dE-Zy-TL6">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -315,10 +299,6 @@
                             <color key="backgroundColor" red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
                         </tabBarAppearance>
                     </tabBar>
-                    <connections>
-                        <segue destination="BYZ-38-t0r" kind="relationship" relationship="viewControllers" id="2k3-zx-gXl"/>
-                        <segue destination="8cR-gz-S0Q" kind="relationship" relationship="viewControllers" id="xJp-sg-6jX"/>
-                    </connections>
                 </tabBarController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="wiJ-Gp-yzb" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
@@ -333,6 +313,5 @@
         <image name="nav_back_button" width="9" height="15.666666984558105"/>
         <image name="shareButton" width="30.333333969116211" height="30"/>
         <image name="tab_editorial_active" width="20" height="22"/>
-        <image name="tab_profile_active" width="24" height="24"/>
     </resources>
 </document>
