@@ -77,10 +77,10 @@ final class ImagesListCell: UITableViewCell {
         contentImageView.kf.indicatorType = .custom(indicator: indicator)
         contentImageView.kf.setImage(with: url, placeholder: UIImage(named: "square")) { [weak self] _ in
             guard let self else { return }
-            self.imagesListAnimator.stopAnimation(view: self, gradient: gradient)
+            self.imagesListAnimator.stopAnimation(view: self, gradient: self.gradient)
         }
         
-        setIsLiked(false)
+        setIsLiked(photo.isLiked)
         
         if let date = photo.createdAt {
             self.dateLabel.text = dateFormatter.string(from: date)
@@ -90,7 +90,7 @@ final class ImagesListCell: UITableViewCell {
     }
     
     func setIsLiked(_ isLiked: Bool) {
-        if isLiked == true {
+        if isLiked {
             likeButton.setImage(UIImage(named: "likeButtonOn"), for: .normal)
         } else {
             likeButton.setImage(UIImage(named: "likeButtonOff"), for: .normal)

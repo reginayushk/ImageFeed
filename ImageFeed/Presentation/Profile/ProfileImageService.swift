@@ -49,6 +49,10 @@ final class ProfileImageService: ProfileImageServiceProtocol {
         task.resume()
     }
     
+    func cleanProfileImage() {
+        self.avatarURL = nil
+    }
+    
 //    func getImage(from imageStringURL: String, completion: @escaping (UIImage?) -> Void) {
 //        
 //        DispatchQueue.global().async { [weak self] in

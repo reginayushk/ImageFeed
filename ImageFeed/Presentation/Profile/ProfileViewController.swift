@@ -65,6 +65,7 @@ final class ProfileViewController: UIViewController {
     private let profileService = ProfileService.shared
     private let profileImageService: ProfileImageServiceProtocol
     private let profileAnimator: ProfileAnimatorProtocol
+    private let imagesListService: ImagesListServiceProtocol
     
     // MARK: - Private Properties
     
@@ -74,16 +75,19 @@ final class ProfileViewController: UIViewController {
     
     init(
         profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared,
-        profileAnimator: ProfileAnimatorProtocol = ProfileAnimator.shared
+        profileAnimator: ProfileAnimatorProtocol = ProfileAnimator.shared,
+        imagesListService: ImagesListServiceProtocol = ImagesListService.shared
     ) {
         self.profileImageService = profileImageService
         self.profileAnimator = profileAnimator
+        self.imagesListService = imagesListService
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         self.profileImageService = ProfileImageService.shared
         self.profileAnimator = ProfileAnimator.shared
+        self.imagesListService = ImagesListService.shared
         super.init(coder: coder)
     }
     
@@ -190,6 +194,9 @@ final class ProfileViewController: UIViewController {
     
     // Static
     static func clean() {
+        ImagesListService.shared.cleanImagesList()
+        ProfileService.shared.cleanProfileInfo()
+        ProfileImageService.shared.cleanProfileImage()
         HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
         WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
             records.forEach { record in

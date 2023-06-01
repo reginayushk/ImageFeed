@@ -25,7 +25,8 @@ final class ImagesListService: ImagesListServiceProtocol {
     
     func fetchPhotosNextPage() {
         assert(Thread.isMainThread)
-        task?.cancel()
+        
+        guard task == nil else { return }
 
         let nextPage = lastLoadedPage + 1
         
@@ -37,8 +38,6 @@ final class ImagesListService: ImagesListServiceProtocol {
             case .success(let body):
                 let photos = body.map(Photo.from(_:))
                 self.photos.append(contentsOf: photos)
-                self.task = nil
-                
                 self.lastLoadedPage = nextPage
                 
                 NotificationCenter.default
@@ -47,6 +46,7 @@ final class ImagesListService: ImagesListServiceProtocol {
                         object: self,
                         userInfo: ["URL": photos]
                     )
+                
             case .failure(let error):
                 NotificationCenter.default
                     .post(
@@ -55,6 +55,7 @@ final class ImagesListService: ImagesListServiceProtocol {
                         userInfo: ["Error": error]
                     )
             }
+            self.task = nil
         }
         self.task = task
         task.resume()
@@ -105,6 +106,10 @@ final class ImagesListService: ImagesListServiceProtocol {
             self.task = task
             task.resume()
         }
+    }
+    
+    func cleanImagesList() {
+        self.photos = []
     }
     
     // MARK: - Private
