@@ -110,6 +110,7 @@ final class ImagesListService: ImagesListServiceProtocol {
     
     func cleanImagesList() {
         self.photos = []
+        self.lastLoadedPage = .zero
     }
     
     // MARK: - Private
