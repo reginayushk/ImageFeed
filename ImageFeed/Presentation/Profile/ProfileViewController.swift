@@ -7,6 +7,7 @@
 
 import UIKit
 import Kingfisher
+import WebKit
 
 private extension CGFloat {
     static let profileImageViewCornerRadius: CGFloat = 35
@@ -63,6 +64,8 @@ final class ProfileViewController: UIViewController {
     // Dependencies
     private let profileService = ProfileService.shared
     private let profileImageService: ProfileImageServiceProtocol
+    private let profileAnimator: ProfileAnimatorProtocol
+    private let imagesListService: ImagesListServiceProtocol
     
     // MARK: - Private Properties
     
@@ -70,17 +73,29 @@ final class ProfileViewController: UIViewController {
     
     // MARK: - Initialize
     
-    init(profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared) {
+    init(
+        profileImageService: ProfileImageServiceProtocol = ProfileImageService.shared,
+        profileAnimator: ProfileAnimatorProtocol = ProfileAnimator.shared,
+        imagesListService: ImagesListServiceProtocol = ImagesListService.shared
+    ) {
         self.profileImageService = profileImageService
+        self.profileAnimator = profileAnimator
+        self.imagesListService = imagesListService
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         self.profileImageService = ProfileImageService.shared
+        self.profileAnimator = ProfileAnimator.shared
+        self.imagesListService = ImagesListService.shared
         super.init(coder: coder)
     }
     
     // MARK: - Lifecycle
+    
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        .lightContent
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -94,9 +109,23 @@ final class ProfileViewController: UIViewController {
             ) { [weak self] _ in
                 guard let self else { return }
                 self.updateAvatar()
+                self.profileAnimator.stopAllAnimations()
             }
         updateAvatar()
-        updateProfileDetails(profile: profileService.profile ?? Profile(username: "", name: "", loginName: "", bio: ""))
+        
+        let profile = profileService.profile ?? Profile(username: "", name: "", loginName: "", bio: "")
+        updateProfileDetails(profile: profile)
+        
+        profileImageService.fetchProfileImageURL(username: profile.username) { _ in }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        profileAnimator.makeAnimation(view: profileImageView)
+        profileAnimator.makeAnimation(view: nameLabel)
+        profileAnimator.makeAnimation(view: nicknameLabel)
+        profileAnimator.makeAnimation(view: infoLabel)
     }
     
     // MARK: - Private
@@ -163,10 +192,48 @@ final class ProfileViewController: UIViewController {
         profileImageView.kf.setImage(with: url)
     }
     
+    // Static
+    static func clean() {
+        ImagesListService.shared.cleanImagesList()
+        ProfileService.shared.cleanProfileInfo()
+        ProfileImageService.shared.cleanProfileImage()
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
+        }
+    }
+    
     // MARK: - Actions
     
     @objc
     private func didTapLogoutButton() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены, что хотите выйти?",
+            preferredStyle: .alert
+        )
         
+        let yesAction = UIAlertAction(
+            title: "Да",
+            style: .default) { [weak self] _ in
+                OAuth2TokenStorage().token = nil
+                ProfileViewController.clean()
+                
+                guard let sceneDelegate = self?.view.window?.windowScene?.delegate as? SceneDelegate else { return }
+                sceneDelegate.startSplashScreen()
+            }
+        
+        let noAction = UIAlertAction(
+            title: "Нет",
+            style: .cancel) { _ in
+                self.dismiss(animated: true)
+            }
+        
+        alert.addAction(yesAction)
+        alert.addAction(noAction)
+        
+        present(alert, animated: true)
     }
 }

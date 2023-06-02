@@ -12,7 +12,7 @@ final class ProfileImageService: ProfileImageServiceProtocol {
     // MARK: - Private Properties
     
     private let urlSession = URLSession.shared
-    private let imageCache = NSCache<NSString, UIImage>()
+//    private let imageCache = NSCache<NSString, UIImage>()
     private var task: URLSessionTask?
     private(set) var avatarURL: String?
     
@@ -47,6 +47,10 @@ final class ProfileImageService: ProfileImageServiceProtocol {
         }
         self.task = task
         task.resume()
+    }
+    
+    func cleanProfileImage() {
+        self.avatarURL = nil
     }
     
 //    func getImage(from imageStringURL: String, completion: @escaping (UIImage?) -> Void) {

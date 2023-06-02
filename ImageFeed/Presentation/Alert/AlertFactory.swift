@@ -21,7 +21,9 @@ final class AlertFactory {
             preferredStyle: .alert
         )
         
-        let okAction = UIAlertAction(title: "OK", style: .cancel)
+        let okAction = UIAlertAction(title: "OK", style: .cancel) { _ in
+            alert.dismiss(animated: true)
+        }
         
         alert.addAction(okAction)
         return alert

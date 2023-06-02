@@ -21,9 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         else { return }
         
         self.window = window
-        self.splashViewController = SplashViewController(window: window)
-        
-        window.rootViewController = splashViewController
+        startSplashScreen()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
@@ -54,6 +52,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-
+    func startSplashScreen() {
+        guard let window else { return }
+        self.splashViewController = SplashViewController(window: window)
+        window.rootViewController = splashViewController
+    }
 }
 
