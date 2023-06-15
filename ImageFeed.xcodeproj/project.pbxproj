@@ -215,12 +215,11 @@
 		507790BA29CE0E9400B5EF94 /* ImageFeed */ = {
 			isa = PBXGroup;
 			children = (
+				50DC5C812A3B792200523E7B /* App */,
 				50E6FA372A2BDE9500C76172 /* Services */,
 				507790D329CEB0E800B5EF94 /* Presentation */,
 				50E209AA29E9988400E79439 /* Helpers */,
 				507790D229CEB0AF00B5EF94 /* Resources */,
-				507790BB29CE0E9400B5EF94 /* AppDelegate.swift */,
-				507790BD29CE0E9400B5EF94 /* SceneDelegate.swift */,
 				507790C929CE0E9500B5EF94 /* Info.plist */,
 			);
 			path = ImageFeed;
@@ -301,6 +300,15 @@
 				50EB3CA72A2BE10A009E25E0 /* Controller */,
 			);
 			path = SingleImage;
+			sourceTree = "<group>";
+		};
+		50DC5C812A3B792200523E7B /* App */ = {
+			isa = PBXGroup;
+			children = (
+				507790BB29CE0E9400B5EF94 /* AppDelegate.swift */,
+				507790BD29CE0E9400B5EF94 /* SceneDelegate.swift */,
+			);
+			path = App;
 			sourceTree = "<group>";
 		};
 		50E209AA29E9988400E79439 /* Helpers */ = {
